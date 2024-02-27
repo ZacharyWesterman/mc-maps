@@ -7,7 +7,7 @@ db = MongoClient().flatearth
 
 #Construct markers from any updated messages
 updated = False
-for message in db.messages.find({'updated': False}):
+for message in db.messages.find({'updated': True}):
 	updated = True
 
 	x_coord = message['coords'][0]
@@ -35,7 +35,7 @@ for message in db.messages.find({'updated': False}):
 		}
 		db.markers.insert_one(marker)
 
-	db.messages.update_one({'_id': message['_id']}, {'$set': {'updated': True}})
+	db.messages.update_one({'_id': message['_id']}, {'$set': {'updated': False}})
 
 #If no messages were updated, do nothing.
 if not updated:
