@@ -1,2 +1,4 @@
 unmined/
 worlds/
+*.log
+poetry.lock
