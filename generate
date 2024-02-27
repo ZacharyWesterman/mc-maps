@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+declare -A C
+C[overworld]='#001440'
+C[nether]='#3F0000'
+C[end]='#1E1027'
+
+declare -A OPT
+OPT[nether]='--topY=61'
+
+WORLD=$1
+ZOOM=$2
+ZOOMIN=0
+ZOOMOUT=0
+
+[ "$ZOOM" == '' ] && ZOOM=0:0
+
+ZOOMIN="${ZOOM%:*}"
+ZOOMOUT="${ZOOM#*:}"
+
+if [ "$ZOOMIN" -lt "$ZOOMOUT" ]
+then
+	t="$ZOOMIN"
+	ZOOMIN="$ZOOMOUT"
+	ZOOMOUT="$t"
+fi
+
+if [ -z "$WORLD" ]
+then
+	>&2 echo 'Usage: ./generate {world} {min-zoom:max-zoom (optional, defaults 0:0)}'
+	exit 1
+fi
+
+if [ "${C[$WORLD]}" == '' ]
+then
+	>&2 echo 'ERROR: World must be "overworld", "nether", or "end"'
+	>&2 echo 'Usage: ./generate {world} {min-zoom:max-zoom (optional, defaults 0:0)}'
+	exit 1
+fi
+
+OUTPUT_DIR="/var/www/html/maps/$WORLD"
+
+# rsync -a "$HOME/minecraftbe/flatearth/worlds" . --delete || exit 1
+
+unmined/unmined-cli web render --world worlds/The\ Flat\ Earth\ Society/ --shadows=true --dimension="$WORLD" --imageformat=webp --output "$OUTPUT_DIR" --background="${C[$WORLD]}" --zoomin="$ZOOMIN" --zoomout="$ZOOMOUT" ${OPT[$WORLD]}
+
+mv "$OUTPUT_DIR/unmined.index.html" "$OUTPUT_DIR/index.html"

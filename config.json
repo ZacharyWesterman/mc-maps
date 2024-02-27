@@ -1,0 +1,9 @@
+{
+	"download_link": "https://unmined.net/download/unmined-cli-linux-x64-dev/?tmstv=1708996531",
+	"world": {
+		"name": "The Flat Earth Society",
+		"seed": "1414188948",
+		"location": "../minecraftbe/flatearth",
+		"generate_range": [-5, 5]
+	}
+}

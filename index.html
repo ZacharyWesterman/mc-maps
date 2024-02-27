@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #001F3F; /* Dark blue background color */
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif; /* Specify a fallback font */
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Adjust the gap between buttons as needed */
+      margin-top: 20px; /* Add some top margin */
+    }
+
+    .rounded-button {
+      width: 200px; /* Adjust the width of the buttons as needed */
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #0074CC; /* Blue button color */
+      color: #FFFFFF; /* White text color */
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .rounded-button:hover {
+      background-color: #0056A7; /* Darker blue color on hover */
+    }
+
+    .seed-text {
+      color: #FFFFFF; /* White text color */
+      font-size: 18px;
+      margin-bottom: 10px; /* Add some bottom margin */
+      text-align: center;
+    }
+  </style>
+  <title>{{world.name}}</title>
+</head>
+
+<body>
+  <div class="button-container">
+    <div class="seed-text">Seed: {{world.seed}}</div>
+    <a href="/maps/overworld"><button class="rounded-button">Overworld</button></a>
+    <a href="/maps/nether"><button class="rounded-button">Nether</button></a>
+    <a href="/maps/end"><button class="rounded-button">The End</button></a>
+  </div>
+</body>
+
+</html>
