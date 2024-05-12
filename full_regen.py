@@ -82,10 +82,14 @@ try:
 	location = config['world']['location']
 	subprocess.call(['rsync', '-a', f'{location}/worlds', '.', '--delete', '--info=progress2'], cwd = DIR)
 
-	#Process world folders
+	#Generate maps from world folders
 	gen_range = ':'.join(str(i) for i in config['world']['generate_range'])
 	for i in ['overworld', 'nether', 'end']:
 		subprocess.call(['./generate', i, gen_range], cwd = DIR) #A good range is -5:5, but it takes a while to run.
+
+	#Create FlatEarth.mcworld file
+	subprocess.call(['zip', 'FlatEarth.zip', f'worlds/{config["world"]["name"]}', '-r'], cwd = DIR)
+	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth.mcworld'])
 
 except Exception as e:
 	print(f'ERROR: {e}')
