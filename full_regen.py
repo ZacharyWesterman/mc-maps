@@ -88,8 +88,8 @@ try:
 		subprocess.call(['./generate', i, gen_range], cwd = DIR) #A good range is -5:5, but it takes a while to run.
 
 	#Create FlatEarth.mcworld file
-	subprocess.call(['zip', 'FlatEarth.zip', f'worlds/{config["world"]["name"]}', '-r'], cwd = DIR)
-	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth.mcworld'])
+	subprocess.call(['zip', 'FlatEarth.zip', config["world"]["name"], '-r'], cwd = f'{DIR}/worlds')
+	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth.mcworld'], cwd = f'{DIR}/worlds')
 
 except Exception as e:
 	print(f'ERROR: {e}')
