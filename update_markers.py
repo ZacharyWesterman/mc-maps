@@ -2,6 +2,10 @@ from pathlib import Path
 from pymongo import MongoClient
 import json
 
+print('THIS FILE IS DEPRECATED. ALL LOGIC HAS BEEN MOVED TO THE MC-DISCORD-BOT.')
+
+exit(1)
+
 DIR = str(Path(__file__).parent)
 db = MongoClient().flatearth
 
