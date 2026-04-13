@@ -42,6 +42,6 @@ OUTPUT_DIR="/var/www/html/maps/$WORLD"
 
 # rsync -a "$HOME/minecraftbe/flatearth/worlds" . --delete || exit 1
 
-unmined/unmined-cli web render --world worlds/The\ Flat\ Earth\ Society/ --shadows=true --dimension="$WORLD" --imageformat=webp --output "$OUTPUT_DIR" --background="${C[$WORLD]}" --zoomin="$ZOOMIN" --zoomout="$ZOOMOUT" ${OPT[$WORLD]}
+unmined/unmined-cli web render --world worlds/The\ Flat\ Earth\ Society/ --shadows=true --dimension="$WORLD" --imageformat=webp --output "$OUTPUT_DIR" --background="${C[$WORLD]}" --zoomin="$ZOOMIN" --zoomout="$ZOOMOUT" --mapsettings="mapsettings.json" "${OPT[$WORLD]}"
 
 mv "$OUTPUT_DIR/unmined.index.html" "$OUTPUT_DIR/index.html"
