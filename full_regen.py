@@ -9,7 +9,7 @@ with open(f'{DIR}/config.json', 'r') as fp:
 	config = json.load(fp)
 
 	failed = False
-	for i in ['download_link', 'world']:
+	for i in ['unmined_link', 'chunker_link', 'world']:
 		if i not in config:
 			print(f'ERROR: config.json missing value "{i}".')
 			failed = True
@@ -70,13 +70,17 @@ try:
 
 	#Download uNmINeD if it doesn't already exist
 	if not Path(f'{DIR}/unmined').exists():
-		subprocess.call(['wget', config['download_link'], '-O', 'unmined.tar.gz'], cwd = DIR)
+		subprocess.call(['wget', config['unmined_link'], '-O', 'unmined.tar.gz'], cwd = DIR)
 		subprocess.call(['tar', 'xzf', 'unmined.tar.gz'], cwd = DIR)
 		Path(f'{DIR}/unmined.tar.gz').unlink()
 
 		for f in Path(f'{DIR}/').glob('unmined-*'):
 			subprocess.call(['mv', str(f), str(f.parent / 'unmined')], cwd = DIR)
 			break
+	
+	#Download Chunker if it doesn't already exist
+	if not Path(f'{DIR}/chunker.jar').exists():
+		subprocess.call(['wget', config['chunker_link'], '-O', 'chunker.jar'], cwd = DIR)
 
 	#Copy world folder locally so we can work on it.
 	location = config['world']['location']
@@ -87,9 +91,20 @@ try:
 	for i in ['overworld', 'nether', 'end']:
 		subprocess.call(['./generate', i, gen_range], cwd = DIR) #A good range is -5:5, but it takes a while to run.
 
-	#Create FlatEarth.mcworld file
-	subprocess.call(['zip', '../FlatEarth.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}')
-	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth.mcworld'], cwd = f'{DIR}/worlds')
+	#Create FlatEarth-Bedrock.mcworld file
+	subprocess.call(['zip', '../FlatEarth-Bedrock.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}')
+	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth-Bedrock.mcworld'], cwd = f'{DIR}/worlds')
+
+	#Run chunker to convert Bedrock world to Java (this will take a long time!)
+	subprocess.call(['rm', f'worlds/{config["world"]["name"]}-Java', '-rf'], cwd = DIR)
+	subprocess.call([
+		'java', '-jar', 'chunker.jar', '-i', f'worlds/{config["world"]["name"]}', '-o', f'worlds/{config["world"]["name"]}-Java', '-f', 'JAVA_26_1'
+	], cwd = DIR)
+
+	#Create FlatEarth-Java.mcworld file
+	subprocess.call(['zip', '../FlatEarth-Java.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}-Java')
+	subprocess.call(['mv', 'FlatEarth-Java.zip', '/var/www/html/FlatEarth-Java.mcworld'], cwd = f'{DIR}/worlds')
+
 
 except Exception as e:
 	print(f'ERROR: {e}')
