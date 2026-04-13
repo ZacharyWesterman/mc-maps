@@ -93,7 +93,7 @@ try:
 
 	#Create FlatEarth-Bedrock.mcworld file
 	subprocess.call(['zip', '../FlatEarth-Bedrock.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}')
-	subprocess.call(['mv', 'FlatEarth.zip', '/var/www/html/FlatEarth-Bedrock.mcworld'], cwd = f'{DIR}/worlds')
+	subprocess.call(['mv', 'FlatEarth-Bedrock.zip', '/var/www/html/FlatEarth-Bedrock.mcworld'], cwd = f'{DIR}/worlds')
 
 	#Run chunker to convert Bedrock world to Java (this will take a long time!)
 	subprocess.call(['rm', f'worlds/{config["world"]["name"]}-Java', '-rf'], cwd = DIR)
