@@ -98,7 +98,7 @@ try:
 	#Run chunker to convert Bedrock world to Java (this will take a long time!)
 	subprocess.call(['rm', f'worlds/{config["world"]["name"]}-Java', '-rf'], cwd = DIR)
 	subprocess.call([
-		'java', '-jar', 'chunker.jar', '-i', f'worlds/{config["world"]["name"]}', '-o', f'worlds/{config["world"]["name"]}-Java', '-f', 'JAVA_26_1'
+		'java', '-jar', 'chunker.jar', '-i', f'worlds/{config["world"]["name"]}', '-o', f'worlds/{config["world"]["name"]}-Java', '-f', 'JAVA_1_21'
 	], cwd = DIR)
 
 	#Create FlatEarth-Java.mcworld file
