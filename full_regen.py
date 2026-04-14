@@ -103,7 +103,7 @@ try:
 
 	#Create FlatEarth-Java.mcworld file
 	subprocess.call(['zip', '../FlatEarth-Java.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}-Java')
-	subprocess.call(['mv', 'FlatEarth-Java.zip', '/var/www/html/FlatEarth-Java.mcworld'], cwd = f'{DIR}/worlds')
+	subprocess.call(['mv', 'FlatEarth-Java.zip', '/var/www/html/FlatEarth-Java.zip'], cwd = f'{DIR}/worlds')
 
 
 except Exception as e:
