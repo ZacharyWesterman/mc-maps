@@ -129,7 +129,7 @@ except Exception as e:
 	print(f'ERROR: {e}')
 
 # Write config from last run
-with open(f'{DIR}/lastrun.json', 'r') as fp:
+with open(f'{DIR}/lastrun.json', 'w') as fp:
 	json.dump(config, fp)
 
 #Release lock
