@@ -3,3 +3,4 @@ worlds/
 *.log
 poetry.lock
 chunker.jar
+lastrun.json

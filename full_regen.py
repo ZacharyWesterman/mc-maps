@@ -2,6 +2,7 @@
 import subprocess
 import json
 from pathlib import Path
+from datetime import date
 
 #Read config and make sure it has all the fields we need
 DIR = str(Path(__file__).parent)
@@ -23,6 +24,13 @@ with open(f'{DIR}/config.json', 'r') as fp:
 
 	if failed: exit(1)
 
+if Path(f'{DIR}/lastrun.json').exists():
+	with open(f'{DIR}/lastrun.json', 'r') as fp:
+		config = {
+			**json.load(fp),
+			**config,
+		}
+
 #Check for lock
 #We DO NOT want this to run multiple times at once!!
 try:
@@ -35,6 +43,55 @@ except:
 with open('.REGEN', 'w') as fp:
 	fp.write('')
 
+try:
+	config['date'] = {}
+
+	#Download uNmINeD if it doesn't already exist
+	if not Path(f'{DIR}/unmined').exists():
+		subprocess.call(['wget', config['unmined_link'], '-O', 'unmined.tar.gz'], cwd = DIR)
+		subprocess.call(['tar', 'xzf', 'unmined.tar.gz'], cwd = DIR)
+		Path(f'{DIR}/unmined.tar.gz').unlink()
+
+		for f in Path(f'{DIR}/').glob('unmined-*'):
+			subprocess.call(['mv', str(f), str(f.parent / 'unmined')], cwd = DIR)
+			break
+	
+	#Download Chunker if it doesn't already exist
+	if not Path(f'{DIR}/chunker.jar').exists():
+		subprocess.call(['wget', config['chunker_link'], '-O', 'chunker.jar'], cwd = DIR)
+
+	#Copy world folder locally so we can work on it.
+	location = config['world']['location']
+	subprocess.call(['rsync', '-a', f'{location}/worlds', '.', '--delete', '--info=progress2'], cwd = DIR)
+
+	#Generate maps from world folders
+	gen_range = ':'.join(str(i) for i in config['world']['generate_range'])
+	for i in ['overworld', 'nether', 'end']:
+		subprocess.call(['./generate', i, gen_range], cwd = DIR) #A good range is -5:5, but it takes a while to run.
+
+	config['date']['map'] = date.today().isoformat()
+
+	#Create FlatEarth-Bedrock.mcworld file
+	subprocess.call(['zip', '../FlatEarth-Bedrock.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}')
+	subprocess.call(['mv', 'FlatEarth-Bedrock.zip', '/var/www/html/FlatEarth-Bedrock.mcworld'], cwd = f'{DIR}/worlds')
+
+	#Run chunker to convert Bedrock world to Java (this will take a long time!)
+	subprocess.call(['rm', f'worlds/{config["world"]["name"]}-Java', '-rf'], cwd = DIR)
+	subprocess.call([
+		'java', '-jar', 'chunker.jar', '-i', f'worlds/{config["world"]["name"]}', '-o', f'worlds/{config["world"]["name"]}-Java', '-f', 'JAVA_1_21'
+	], cwd = DIR)
+
+	#Create FlatEarth-Java.mcworld file
+	subprocess.call(['zip', '../FlatEarth-Java.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}-Java')
+	subprocess.call(['mv', 'FlatEarth-Java.zip', '/var/www/html/FlatEarth-Java.zip'], cwd = f'{DIR}/worlds')
+
+	config['date']['download'] = date.today().isoformat()
+
+except Exception as e:
+	print(f'ERROR: {e}')
+
+
+# Always try to build the main html page, at least.
 try:
 	#Parse index.html and place result in web root
 	with open(f'{DIR}/index.html', 'r') as fp:
@@ -68,46 +125,12 @@ try:
 		with open('/var/www/html/index.html', 'w') as out:
 			out.write(newtext)
 
-	#Download uNmINeD if it doesn't already exist
-	if not Path(f'{DIR}/unmined').exists():
-		subprocess.call(['wget', config['unmined_link'], '-O', 'unmined.tar.gz'], cwd = DIR)
-		subprocess.call(['tar', 'xzf', 'unmined.tar.gz'], cwd = DIR)
-		Path(f'{DIR}/unmined.tar.gz').unlink()
-
-		for f in Path(f'{DIR}/').glob('unmined-*'):
-			subprocess.call(['mv', str(f), str(f.parent / 'unmined')], cwd = DIR)
-			break
-	
-	#Download Chunker if it doesn't already exist
-	if not Path(f'{DIR}/chunker.jar').exists():
-		subprocess.call(['wget', config['chunker_link'], '-O', 'chunker.jar'], cwd = DIR)
-
-	#Copy world folder locally so we can work on it.
-	location = config['world']['location']
-	subprocess.call(['rsync', '-a', f'{location}/worlds', '.', '--delete', '--info=progress2'], cwd = DIR)
-
-	#Generate maps from world folders
-	gen_range = ':'.join(str(i) for i in config['world']['generate_range'])
-	for i in ['overworld', 'nether', 'end']:
-		subprocess.call(['./generate', i, gen_range], cwd = DIR) #A good range is -5:5, but it takes a while to run.
-
-	#Create FlatEarth-Bedrock.mcworld file
-	subprocess.call(['zip', '../FlatEarth-Bedrock.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}')
-	subprocess.call(['mv', 'FlatEarth-Bedrock.zip', '/var/www/html/FlatEarth-Bedrock.mcworld'], cwd = f'{DIR}/worlds')
-
-	#Run chunker to convert Bedrock world to Java (this will take a long time!)
-	subprocess.call(['rm', f'worlds/{config["world"]["name"]}-Java', '-rf'], cwd = DIR)
-	subprocess.call([
-		'java', '-jar', 'chunker.jar', '-i', f'worlds/{config["world"]["name"]}', '-o', f'worlds/{config["world"]["name"]}-Java', '-f', 'JAVA_1_21'
-	], cwd = DIR)
-
-	#Create FlatEarth-Java.mcworld file
-	subprocess.call(['zip', '../FlatEarth-Java.zip', '.', '-r'], cwd = f'{DIR}/worlds/{config["world"]["name"]}-Java')
-	subprocess.call(['mv', 'FlatEarth-Java.zip', '/var/www/html/FlatEarth-Java.zip'], cwd = f'{DIR}/worlds')
-
-
 except Exception as e:
 	print(f'ERROR: {e}')
+
+# Write config from last run
+with open(f'{DIR}/lastrun.json', 'r') as fp:
+	json.dump(config, fp)
 
 #Release lock
 Path('.REGEN').unlink(missing_ok=True)
